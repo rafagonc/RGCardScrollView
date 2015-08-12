@@ -56,6 +56,7 @@
     self.shouldSortOnLayoutSubviews=  YES;
     self.shouldCalculateContentSize = YES;
     self.editing = YES;
+    self.lock = RGAutoresizeScrollViewDirectionLockHorizontal;
     
     self.delegate = self;
     self.closedPadding = 60;
@@ -69,7 +70,9 @@
 #pragma mark - layout
 -(void)layoutSubviews {
     [super layoutSubviews];
-    if (self.shouldSortOnLayoutSubviews) [self.sorter sort:NO];
+    if (self.shouldSortOnLayoutSubviews) {
+        [self.sorter sort:NO];
+    }
     if (self.shouldCalculateContentSize) self.contentSize = [self calculateContentSize];
 
 }
@@ -97,42 +100,47 @@
         
         __block RGCardItemScrollingShifter *shifter = [[RGCardItemScrollingShifter alloc] initWithItems:welf.items andSorter:welf.sorter];
 
-        draggableView.startDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
-            [welf setScrollEnabled:NO];
-        };
-        draggableView.draggingCallback = ^(RGDraggrableViewCallbackStructure structure){
-            if (welf.editing) {
-                if (structure.direction == RGDraggrableViewDirectionVertical) {
-                    shifter.item = wCardItem;
-                    [shifter trackDraggingWithLocation:structure.viewPosition];
-                    shifter.shifted = ^{
-                        [welf.sorter sort:YES];
-                    };
-                } else {
-                    RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:wCardItem];
-                    if (welf.cardDelegate && [welf.cardDelegate respondsToSelector:@selector(cardScrollView:canDeleteViewAtIndex:)]) {
-                        if ([welf.cardDelegate cardScrollView:welf canDeleteViewAtIndex:[welf.items indexOfObject:wCardItem]]) {
-                            [remover trackingHorizontalCardScrolling:structure.speed andDeletionCallback:^{
-                                [welf setShoudLayoutOnDraggableEndDragging:NO];
-                                [remover removeWithCompletion:^{
-                                    [welf setShouldCalculateContentSize:NO];
-                                    [welf setShoudLayoutOnDraggableEndDragging:YES];
-                                    [welf.sorter sort:YES];
+        /* Callbackcs */ {
+            draggableView.startDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
+                [welf setScrollEnabled:NO];
+            };
+            draggableView.draggingCallback = ^(RGDraggrableViewCallbackStructure structure){
+                if (welf.editing) {
+                    if (structure.direction == RGDraggrableViewDirectionVertical) {
+                        shifter.item = wCardItem;
+                        [shifter trackDraggingWithLocation:structure.viewPosition];
+                        shifter.shifted = ^{
+                            [welf.sorter sort:YES];
+                        };
+                    } else {
+                        RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:wCardItem];
+                        if (welf.cardDelegate && [welf.cardDelegate respondsToSelector:@selector(cardScrollView:canDeleteViewAtIndex:)]) {
+                            if ([welf.cardDelegate cardScrollView:welf canDeleteViewAtIndex:[welf.items indexOfObject:wCardItem]]) {
+                                [remover trackingHorizontalCardScrolling:structure.speed andDeletionCallback:^{
+                                    [welf setShoudLayoutOnDraggableEndDragging:NO];
+                                    [remover removeWithCompletion:^{
+                                        [welf setShoudLayoutOnDraggableEndDragging:YES];
+                                        [welf setShouldCalculateContentSize:NO];
+                                        [welf.sorter sort:YES];
+                                    }];
                                 }];
-                            }];
+                            }
                         }
                     }
                 }
-            }
-        };
-        draggableView.endDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
-            if (self.shoudLayoutOnDraggableEndDragging) [welf.sorter sort:YES];
-            [welf setScrollEnabled:YES];
-        
-        };
-        cardItem.tapped = ^(NSUInteger xZorder, UIView *view) {
-            [welf openItem:wCardItem];
-        };
+            };
+            draggableView.endDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
+                if (welf.shoudLayoutOnDraggableEndDragging) [welf.sorter sort:YES];
+                [welf setScrollEnabled:YES];
+                
+            };
+            cardItem.tapped = ^(UIView *view) {
+                [welf openItem:wCardItem];
+            };
+            cardItem.longPressed = ^(UIView *view) {
+                [welf longPressedItem:wCardItem];
+            };
+        }
         
         [self.items insertObject:cardItem atIndex:order];
         
@@ -153,22 +161,33 @@
 
 #pragma mark - runtime insertion and deletion
 -(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order animated:(BOOL)animated {
+    if (self.editing == NO) return;
     RGCardItem *item = [self addSubview:view withOrder:order];
     item.view.layer.opacity = animated ? 0.0f : 1.0f;
     [self.sorter sort:animated];
 }
 -(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated completion:(void(^)())completion {
+    if (self.editing == NO) return;
     __weak typeof(self) welf = self;
     if (order >= self.items.count) return;
     RGCardItem *item = self.items[order];
+    [self setShoudLayoutOnDraggableEndDragging:NO];
     [RGCardItemRemover removeItem:item animated:animated andCompletion:^{
         [welf setShouldCalculateContentSize:NO];
+        [self setShoudLayoutOnDraggableEndDragging:YES];
         [welf.sorter sort:animated];
         if (completion) completion();
     }];
 }
--(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated {
+-(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated  {
     [self deleteSubviewAtOrder:order animated:animated completion:nil];
+}
+-(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType completion:(void(^)())completion {
+    RGCardSwapAnimation *swap = [[RGCardSwapAnimation alloc] initFromItem:self.items[index] toItem:self.items[index2] andSorter:self.sorter andAnimationType:animationType andItems:self.items];
+    [swap runWithCompletion:completion];
+}
+-(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType {
+    [self swapViewAtIndex:index withViewAtIndex:index2 andAnimationType:animationType completion:nil];
 }
 
 #pragma mark - data
@@ -230,6 +249,11 @@
         [self.sorter sort:YES];
     }
 }
+-(void)longPressedItem:(RGCardItem *)item {
+    if (self.cardDelegate && [self.cardDelegate respondsToSelector:@selector(cardScrollView:didSelectViewAtIndex:)]) {
+        [self.cardDelegate cardScrollView:self didLongPressViewAtIndex:[self.items indexOfObject:item]];
+    }
+}
 
 #pragma mark - helper methods
 -(RGCardItem *)itemForSubview:(UIView *)subview {
@@ -264,7 +288,7 @@
 
 #pragma mark - dealloc
 -(void)dealloc {
-    
+    NSLog(@"Dealloced");
 }
 
 @end

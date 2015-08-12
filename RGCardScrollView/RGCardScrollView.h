@@ -22,18 +22,27 @@
 
 #pragma mark - methods
 -(void)reloadData;
+
+#pragma mark - insertion
 -(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order animated:(BOOL)animated;
+
+#pragma mark -  deletion animation
 -(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated;
+-(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated completion:(void(^)())completion;
+
+#pragma mark - swap animation
+-(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType;
+-(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType completion:(void(^)())completion;
 
 @end
 
-@protocol RGCardScrollViewDelegate <NSObject>
-@optional
+@protocol RGCardScrollViewDelegate <NSObject> @optional
 -(void)cardScrollView:(RGCardScrollView *)cardScrollView didSelectViewAtIndex:(NSInteger)index;
+-(void)cardScrollView:(RGCardScrollView *)cardScrollView didLongPressViewAtIndex:(NSInteger)index;
 -(BOOL)cardScrollView:(RGCardScrollView *)cardScrollView canDeleteViewAtIndex:(NSInteger)index;
 @end
 
-@protocol RGCardScrollViewDatasource <NSObject>
+@protocol RGCardScrollViewDatasource <NSObject> @required
 -(NSInteger)numberOfCardsOnCardScrollView:(RGCardScrollView *)cardScrollView;
 -(UIView *)cardScrollView:(RGCardScrollView *)cardScrollView  viewForIndex:(NSInteger)index;
 @end

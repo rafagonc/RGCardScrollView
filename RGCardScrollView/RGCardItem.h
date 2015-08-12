@@ -9,14 +9,17 @@
 @import UIKit;
 
 #pragma mark - blokcs
-typedef void(^RGCardItemTapped)(NSUInteger order, UIView *view);
+typedef void(^RGCardItemTapped)(UIView *view);
+typedef void(^RGCardItemLongPressed)(UIView *view);
+
 
 @interface RGCardItem : NSObject
 
 #pragma mark - properties
-@property (nonatomic,strong) UIView          * view;
-@property (nonatomic,  copy) RGCardItemTapped  tapped;
-@property (nonatomic,assign) BOOL              opened;
+@property (nonatomic,strong) UIView               * view;
+@property (nonatomic,  copy) RGCardItemTapped       tapped;
+@property (nonatomic,  copy) RGCardItemLongPressed  longPressed;
+@property (nonatomic,assign) BOOL                   opened;
 
 #pragma mark - constructor
 -(instancetype)initWithView:(UIView *)view andOrder:(NSUInteger)order;

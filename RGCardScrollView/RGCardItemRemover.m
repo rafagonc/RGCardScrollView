@@ -31,6 +31,9 @@
 #pragma mark - tracking
 -(void)trackingHorizontalCardScrolling:(CGFloat)velocity andDeletionCallback:(void(^)())deletionCallback {
     if ((velocity) > 1000) {
+        RGDraggrableView *draggableView = (RGDraggrableView *)self.item.view;
+        draggableView.draggable = NO;
+        draggableView.userInteractionEnabled = NO;
         if (deletionCallback) deletionCallback();
         deletionCallback = nil;
     }
@@ -50,7 +53,6 @@
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
         animation.fromValue = @(self.item.view.frame.origin.x);
         animation.toValue = @(xDestination);
-        animation.removedOnCompletion = NO;
         [self.item.view.layer addAnimation:animation forKey:@"slipOut"];
         
         _item.view.frame = CGRectMake(xDestination, _item.view.frame.origin.y, _item.view.frame.size.width, _item.view.frame.size.height);

@@ -8,11 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum : int {
+    RGAutoresizeScrollViewDirectionLockHorizontal = 1,
+    RGAutoresizeScrollViewDirectionLockVertical = 2,
+    RGAutoresizeScrollViewDirectionLockNone = 0
+}RGAutoresizeScrollViewDirectionLock;
+
 @interface RGAutoresizeScrollView : UIScrollView
 
 #pragma mark - properties
 @property (nonatomic,strong) NSHashTable *addedSubviews; //Cant have scrollers and part of the subviews, this is the problem with self.subviews
-@property (nonatomic,assign) BOOL activeBouncing;
+@property (nonatomic,assign) RGAutoresizeScrollViewDirectionLock lock;
 
 #pragma mark - protected (virtual)
 -(void)commonInit;

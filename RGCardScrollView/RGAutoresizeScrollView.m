@@ -37,7 +37,7 @@
     [self commonInit];
 }
 -(void)commonInit {
-    self.activeBouncing = YES;
+    self.lock = RGAutoresizeScrollViewDirectionLockNone;
     self.addedSubviews = [NSHashTable hashTableWithOptions:NSPointerFunctionsWeakMemory];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardDidChangeFrameNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
@@ -64,10 +64,10 @@
         contentSize.width  = MAX(contentSize.width, view.frame.origin.x + view.frame.size.width);
     }
     contentSize.height += self.keyboardHeight;
-    if (self.activeBouncing) {
-        contentSize.height = MAX(contentSize.height, self.frame.size.height + 5);
-        contentSize.width = MAX(contentSize.width, self.frame.size.width);
-    }
+    
+    if (self.lock == RGAutoresizeScrollViewDirectionLockHorizontal) contentSize = CGSizeMake(0, contentSize.height);
+    else if (self.lock == RGAutoresizeScrollViewDirectionLockVertical) contentSize = CGSizeMake(contentSize.width, 0);
+    
     return contentSize;
 }
 
