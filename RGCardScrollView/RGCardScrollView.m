@@ -136,18 +136,20 @@
     __block RGCardItemScrollingShifter *shifter = [[RGCardItemScrollingShifter alloc] initWithItems:welf.items andSorter:welf.sorter];
     draggableView.draggingCallback = ^(RGDraggrableViewCallbackStructure structure){
         if (welf.editing == NO) return;
+        
         if (structure.direction == RGDraggrableViewDirectionVertical) {
-            shifter.item = item;
+            [shifter setItem:item];
             [shifter trackDraggingWithLocation:structure.viewPosition];
-            shifter.shifted = ^{
+            [shifter setShifted:^{
                 [(id<RGAnimationQueueOperationProtocol>)[welf.sorter compositeSortingAnimation] runWithCompletion:nil];
-            };
+
+            }];
         } else {
             RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:item];
             if (welf.cardDelegate && [welf.cardDelegate respondsToSelector:@selector(cardScrollView:canDeleteViewAtIndex:)]) {
                 if ([welf.cardDelegate cardScrollView:welf canDeleteViewAtIndex:[welf.items indexOfObject:item]]) {
                     [remover trackingHorizontalCardScrolling:structure.speed andDeletionCallback:^{
-                        
+                        [welf deleteSubviewAtOrder:[welf.items indexOfObject:item]];
                     }];
                 }
             }
@@ -166,13 +168,13 @@
 }
 
 #pragma mark - runtime insertion, deletion and swapping
--(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order animated:(BOOL)animated {
+-(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order {
     if (self.editing == NO) return;
     RGCardItem *item = [self addSubview:view withOrder:order];
-    item.view.layer.opacity = animated ? 0.0f : 1.0f; //fade out animation
+    item.view.layer.opacity = 0.0f; //fade out animation
     [self animatedSortIntoPlaces];
 }
--(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated {
+-(void)deleteSubviewAtOrder:(NSUInteger)order {
     if (self.editing == NO || order >= self.items.count) return;
     
     RGCardItem *item = self.items[order];

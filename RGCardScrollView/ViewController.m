@@ -33,7 +33,7 @@
     
 }
 -(void)remove:(RGCardScrollView *)view {
-    [view deleteSubviewAtOrder:2 animated:YES];
+    [view swapViewAtIndex:2 withViewAtIndex:4 andAnimationType:RGCardAnimationTypeSwap ];
 }
 
 #pragma mark - card data source
@@ -51,11 +51,11 @@
 -(void)cardScrollView:(RGCardScrollView *)cardScrollView didSelectViewAtIndex:(NSInteger)index {
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 150)];
     [view setBackgroundColor:[UIColor colorWithRed:(arc4random() % 255/255.0) green:(arc4random() % 255/255.0) blue:(arc4random() % 255/255.0) alpha:1]];
-    [cardScrollView insertSubview:view atOrder:index + 1 animated:YES];
+    [cardScrollView insertSubview:view atOrder:index + 1];
     
 }
 -(void)cardScrollView:(RGCardScrollView *)cardScrollView didLongPressViewAtIndex:(NSInteger)index {
-    [cardScrollView deleteSubviewAtOrder:index animated:YES];
+    [cardScrollView deleteSubviewAtOrder:index];
 
 }
 

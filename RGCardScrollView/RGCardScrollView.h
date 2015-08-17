@@ -24,11 +24,10 @@
 -(void)reloadData;
 
 #pragma mark - insertion
--(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order animated:(BOOL)animated;
+-(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order;
 
 #pragma mark -  deletion animation
--(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated;
--(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated completion:(void(^)())completion;
+-(void)deleteSubviewAtOrder:(NSUInteger)order;
 
 #pragma mark - swap animation
 -(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType;
