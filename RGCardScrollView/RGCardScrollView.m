@@ -15,11 +15,13 @@
 #import "RGCardItemScrollingShifter.h"
 #import "RGCardItemRemover.h"
 #import "RGCardViewCustomizer.h"
+#import "RGAnimationQueue.h"
 
 @interface RGCardScrollView () <UIScrollViewDelegate>
 
 @property (nonatomic,strong) NSMutableArray *items;
 @property (nonatomic,strong) RGCardItemSorter *sorter;
+@property (nonatomic,strong) RGAnimationQueue *animationQueue;
 @property (nonatomic,assign) BOOL shouldCalculateContentSize;
 @property (nonatomic,assign) BOOL shouldSortOnLayoutSubviews;
 @property (nonatomic,assign) BOOL shoudLayoutOnDraggableEndDragging;
@@ -55,6 +57,7 @@
     self.shoudLayoutOnDraggableEndDragging = YES;
     self.shouldSortOnLayoutSubviews=  YES;
     self.shouldCalculateContentSize = YES;
+    self.animationQueue = [[RGAnimationQueue alloc] init];
     self.editing = YES;
     self.lock = RGAutoresizeScrollViewDirectionLockHorizontal;
     
@@ -71,7 +74,7 @@
 -(void)layoutSubviews {
     [super layoutSubviews];
     if (self.shouldSortOnLayoutSubviews) {
-        [self.sorter sort:NO];
+        [self.sorter sortViewsAndSendThemToTheRightPlaces];
     }
     if (self.shouldCalculateContentSize) self.contentSize = [self calculateContentSize];
 
@@ -98,49 +101,12 @@
         __weak typeof(self) welf = self;
         __weak typeof(cardItem) wCardItem = cardItem;
         
-        __block RGCardItemScrollingShifter *shifter = [[RGCardItemScrollingShifter alloc] initWithItems:welf.items andSorter:welf.sorter];
-
-        /* Callbackcs */ {
-            draggableView.startDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
-                [welf setScrollEnabled:NO];
-            };
-            draggableView.draggingCallback = ^(RGDraggrableViewCallbackStructure structure){
-                if (welf.editing) {
-                    if (structure.direction == RGDraggrableViewDirectionVertical) {
-                        shifter.item = wCardItem;
-                        [shifter trackDraggingWithLocation:structure.viewPosition];
-                        shifter.shifted = ^{
-                            [welf.sorter sort:YES];
-                        };
-                    } else {
-                        RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:wCardItem];
-                        if (welf.cardDelegate && [welf.cardDelegate respondsToSelector:@selector(cardScrollView:canDeleteViewAtIndex:)]) {
-                            if ([welf.cardDelegate cardScrollView:welf canDeleteViewAtIndex:[welf.items indexOfObject:wCardItem]]) {
-                                [remover trackingHorizontalCardScrolling:structure.speed andDeletionCallback:^{
-                                    [welf setShoudLayoutOnDraggableEndDragging:NO];
-                                    [remover removeWithCompletion:^{
-                                        [welf setShoudLayoutOnDraggableEndDragging:YES];
-                                        [welf setShouldCalculateContentSize:NO];
-                                        [welf.sorter sort:YES];
-                                    }];
-                                }];
-                            }
-                        }
-                    }
-                }
-            };
-            draggableView.endDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
-                if (welf.shoudLayoutOnDraggableEndDragging) [welf.sorter sort:YES];
-                [welf setScrollEnabled:YES];
-                
-            };
-            cardItem.tapped = ^(UIView *view) {
-                [welf openItem:wCardItem];
-            };
-            cardItem.longPressed = ^(UIView *view) {
-                [welf longPressedItem:wCardItem];
-            };
-        }
+        [self setupStartDraggingForDraggableView:draggableView];
+        [self setupDraggingCallbackForDraggableView:draggableView andCardItem:wCardItem];
+        [self setupEndDraggingForDraggableView:draggableView];
+        
+        cardItem.tapped = ^(UIView *view) {[welf openItem:wCardItem];};
+        cardItem.longPressed = ^(UIView *view) {[welf longPressedItem:wCardItem];};
         
         [self.items insertObject:cardItem atIndex:order];
         
@@ -151,43 +117,79 @@
 }
 -(void)willRemoveSubview:(UIView *)subview {
     RGCardItem *item = [self itemForSubview:subview];
-    if (item)
-        [self.items removeObject:item];
+    if (item)[self.items removeObject:item];
 
 }
 -(void)didMoveToSuperview {
     [self reloadData];
 }
 
-#pragma mark - runtime insertion and deletion
+#pragma mark - draggable setups
+-(void)setupStartDraggingForDraggableView:(RGDraggrableView *)draggableView {
+    __weak typeof(self) welf = self;
+    draggableView.startDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
+        [welf setScrollEnabled:NO];
+    };
+}
+-(void)setupDraggingCallbackForDraggableView:(RGDraggrableView *)draggableView andCardItem:(RGCardItem *)item {
+    __weak typeof(self) welf = self;
+    __block RGCardItemScrollingShifter *shifter = [[RGCardItemScrollingShifter alloc] initWithItems:welf.items andSorter:welf.sorter];
+    draggableView.draggingCallback = ^(RGDraggrableViewCallbackStructure structure){
+        if (welf.editing == NO) return;
+        if (structure.direction == RGDraggrableViewDirectionVertical) {
+            shifter.item = item;
+            [shifter trackDraggingWithLocation:structure.viewPosition];
+            shifter.shifted = ^{
+                [(id<RGAnimationQueueOperationProtocol>)[welf.sorter compositeSortingAnimation] runWithCompletion:nil];
+            };
+        } else {
+            RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:item];
+            if (welf.cardDelegate && [welf.cardDelegate respondsToSelector:@selector(cardScrollView:canDeleteViewAtIndex:)]) {
+                if ([welf.cardDelegate cardScrollView:welf canDeleteViewAtIndex:[welf.items indexOfObject:item]]) {
+                    [remover trackingHorizontalCardScrolling:structure.speed andDeletionCallback:^{
+                        
+                    }];
+                }
+            }
+        }
+    };
+}
+-(void)setupEndDraggingForDraggableView:(RGDraggrableView *)draggableView {
+    __weak typeof(self) welf = self;
+    draggableView.endDraggingCallback = ^(RGDraggrableViewCallbackStructure structure) {
+        if (welf.shoudLayoutOnDraggableEndDragging) {
+            [welf animatedSortIntoPlaces];
+        }
+        [welf setScrollEnabled:YES];
+        
+    };
+}
+
+#pragma mark - runtime insertion, deletion and swapping
 -(void)insertSubview:(UIView *)view atOrder:(NSUInteger)order animated:(BOOL)animated {
     if (self.editing == NO) return;
     RGCardItem *item = [self addSubview:view withOrder:order];
-    item.view.layer.opacity = animated ? 0.0f : 1.0f;
-    [self.sorter sort:animated];
+    item.view.layer.opacity = animated ? 0.0f : 1.0f; //fade out animation
+    [self animatedSortIntoPlaces];
 }
--(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated completion:(void(^)())completion {
-    if (self.editing == NO) return;
-    __weak typeof(self) welf = self;
-    if (order >= self.items.count) return;
+-(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated {
+    if (self.editing == NO || order >= self.items.count) return;
+    
     RGCardItem *item = self.items[order];
-    [self setShoudLayoutOnDraggableEndDragging:NO];
-    [RGCardItemRemover removeItem:item animated:animated andCompletion:^{
-        [welf setShouldCalculateContentSize:NO];
-        [self setShoudLayoutOnDraggableEndDragging:YES];
-        [welf.sorter sort:animated];
-        if (completion) completion();
+    self.shoudLayoutOnDraggableEndDragging = NO;
+    self.shouldSortOnLayoutSubviews = NO;
+    
+    [self.animationQueue addOperation:(id<RGAnimationQueueOperationProtocol>)[[[RGCardItemRemover alloc] initWithItem:item] removeAnimationItem]];
+    [self.items removeObjectAtIndex:order];
+    [self.animationQueue addOperation:(id<RGAnimationQueueOperationProtocol>)[self.sorter compositeSortingAnimation]];
+    [self.animationQueue run:^{
+        self.shoudLayoutOnDraggableEndDragging = YES;
+        self.shouldSortOnLayoutSubviews = YES;
     }];
 }
--(void)deleteSubviewAtOrder:(NSUInteger)order animated:(BOOL)animated  {
-    [self deleteSubviewAtOrder:order animated:animated completion:nil];
-}
--(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType completion:(void(^)())completion {
-    RGCardSwapAnimation *swap = [[RGCardSwapAnimation alloc] initFromItem:self.items[index] toItem:self.items[index2] andSorter:self.sorter andAnimationType:animationType andItems:self.items];
-    [swap runWithCompletion:completion];
-}
 -(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType {
-    [self swapViewAtIndex:index withViewAtIndex:index2 andAnimationType:animationType completion:nil];
+    RGCardSwapAnimation *swap = [[RGCardSwapAnimation alloc] initFromItem:self.items[index] toItem:self.items[index2] andSorter:self.sorter andAnimationType:animationType andItems:self.items];
+    [swap runWithCompletion:nil];
 }
 
 #pragma mark - data
@@ -240,13 +242,11 @@
             if (self.cardDelegate || [self.cardDelegate respondsToSelector:@selector(cardScrollView:didSelectViewAtIndex:)]) {
                 [self.cardDelegate cardScrollView:self didSelectViewAtIndex:[self.items indexOfObject:item]];
             }
-            self.editing = YES;
         } else {
             for (RGCardItem *item in self.items) item.opened = NO;
             item.opened = YES;
-            self.editing = NO;
         }
-        [self.sorter sort:YES];
+        [self animatedSortIntoPlaces];
     }
 }
 -(void)longPressedItem:(RGCardItem *)item {
@@ -261,6 +261,10 @@
         if ([item.view isEqual:subview]) return item;
     }
     return nil;
+}
+-(void)animatedSortIntoPlaces {
+    [self.animationQueue addOperation:(id<RGAnimationQueueOperationProtocol>)[self.sorter compositeSortingAnimation]];
+    [self.animationQueue run:nil];
 }
 
 #pragma mark - getters

@@ -32,7 +32,6 @@
 
 #pragma mark - swap animation
 -(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType;
--(void)swapViewAtIndex:(NSUInteger)index withViewAtIndex:(NSUInteger)index2 andAnimationType:(RGCardAnimationType)animationType completion:(void(^)())completion;
 
 @end
 

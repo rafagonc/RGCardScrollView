@@ -9,12 +9,12 @@
 #import "RGCardItemRemover.h"
 #import "RGDraggrableView.h"
 #import "RGCardItem.h"
+#import "RGAnimationQueueOperation.h"
 
 @interface RGCardItemRemover ()
 
 @property (nonatomic,weak) RGCardItem *item;
 @property (nonatomic,assign) BOOL animated;
-@property (nonatomic,copy) void(^completion)();
 
 @end
 
@@ -40,9 +40,7 @@
 }
 
 #pragma mark - remove
--(void)removeWithCompletion:(void (^)(void))completion {
-    self.completion = completion;
-    
+-(RGAnimationQueueOperation *)removeAnimationItem {
     if (self.animated) {
         CGFloat xDestination = [UIScreen mainScreen].bounds.size.width + self.item.view.frame.size.width + 30;
         
@@ -53,32 +51,25 @@
         animation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
         animation.fromValue = @(self.item.view.frame.origin.x);
         animation.toValue = @(xDestination);
-        [self.item.view.layer addAnimation:animation forKey:@"slipOut"];
         
-        _item.view.frame = CGRectMake(xDestination, _item.view.frame.origin.y, _item.view.frame.size.width, _item.view.frame.size.height);
+        RGAnimationQueueOperation *op = [[RGAnimationQueueOperation alloc] initWithAnimation:animation onView:self.item.view forKey:@"slipOut"];
+        op.modalLayerChangingCallback = ^{[self.item.view setFrame:CGRectMake(xDestination, self.item.view.frame.origin.y, self.item.view.frame.size.width, self.item.view.frame.size.height)];};
+        op.animationDidStopCallback = ^{[self.item.view removeFromSuperview];};
+        
+        return op;
     } else {
-         [self finish];   
+        [self.item.view removeFromSuperview];
+        return nil;
     }
     
 }
--(void)finish {
-    [self.item.view removeFromSuperview];
-    if (self.completion) self.completion();
-    self.completion = nil;
-}
 
-#pragma mark - animation delegate
--(void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag {
-    if (flag) {
-        [self finish];
-    }
-}
 
-#pragma mark - factory method
-+(void)removeItem:(RGCardItem *)item animated:(BOOL)animated andCompletion:(void(^)())completion {
-    RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:item];
-    remover.animated = animated;
-    [remover removeWithCompletion:completion];
-}
+//#pragma mark - factory method
+//+(void)removeItem:(RGCardItem *)item animated:(BOOL)animated andCompletion:(void(^)())completion {
+//    RGCardItemRemover *remover = [[RGCardItemRemover alloc] initWithItem:item];
+//    remover.animated = animated;
+//    [remover removeWithCompletion:completion];
+//}
 
 @end

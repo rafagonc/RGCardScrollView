@@ -10,6 +10,7 @@
 
 @class RGDraggrableView;
 @class RGCardItem;
+@class RGAnimationQueueOperation;
 
 @interface RGCardItemRemover : NSObject
 
@@ -20,9 +21,9 @@
 -(void)trackingHorizontalCardScrolling:(CGFloat)velocity andDeletionCallback:(void(^)())deletionCallback ;
 
 #pragma mark - remove
--(void)removeWithCompletion:(void(^)(void))completion;
+-(RGAnimationQueueOperation *)removeAnimationItem;
 
 #pragma mark - factory method
-+(void)removeItem:(RGCardItem *)item animated:(BOOL)animated andCompletion:(void(^)())completion;
+
 
 @end

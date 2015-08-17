@@ -23,6 +23,11 @@
 		2A1F092C1B7BB59E00A99F47 /* RGCardSwapAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1F09211B7BB59E00A99F47 /* RGCardSwapAnimation.m */; };
 		2A1F092D1B7BB59E00A99F47 /* RGCardViewCustomizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1F09231B7BB59E00A99F47 /* RGCardViewCustomizer.m */; };
 		2A1F092E1B7BB59E00A99F47 /* RGDraggrableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A1F09251B7BB59E00A99F47 /* RGDraggrableView.m */; };
+		2A1F09371B7BDDA000A99F47 /* Fabric.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1F09351B7BDDA000A99F47 /* Fabric.framework */; };
+		2A1F09381B7BDDA000A99F47 /* Crashlytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A1F09361B7BDDA000A99F47 /* Crashlytics.framework */; };
+		2A28C42C1B7E8ABA00081719 /* RGAnimationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A28C42B1B7E8ABA00081719 /* RGAnimationQueue.m */; };
+		2A28C42F1B7E8ACF00081719 /* RGAnimationQueueOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A28C42E1B7E8ACF00081719 /* RGAnimationQueueOperation.m */; };
+		2A28C4331B7E8B4800081719 /* RGAnimationQueueOperationComposite.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A28C4321B7E8B4800081719 /* RGAnimationQueueOperationComposite.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +72,15 @@
 		2A1F09231B7BB59E00A99F47 /* RGCardViewCustomizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RGCardViewCustomizer.m; sourceTree = "<group>"; };
 		2A1F09241B7BB59E00A99F47 /* RGDraggrableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGDraggrableView.h; sourceTree = "<group>"; };
 		2A1F09251B7BB59E00A99F47 /* RGDraggrableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RGDraggrableView.m; sourceTree = "<group>"; };
+		2A1F09351B7BDDA000A99F47 /* Fabric.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Fabric.framework; sourceTree = "<group>"; };
+		2A1F09361B7BDDA000A99F47 /* Crashlytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Crashlytics.framework; sourceTree = "<group>"; };
+		2A28C42A1B7E8ABA00081719 /* RGAnimationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGAnimationQueue.h; sourceTree = "<group>"; };
+		2A28C42B1B7E8ABA00081719 /* RGAnimationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RGAnimationQueue.m; sourceTree = "<group>"; };
+		2A28C42D1B7E8ACF00081719 /* RGAnimationQueueOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGAnimationQueueOperation.h; sourceTree = "<group>"; };
+		2A28C42E1B7E8ACF00081719 /* RGAnimationQueueOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RGAnimationQueueOperation.m; sourceTree = "<group>"; };
+		2A28C4301B7E8B0900081719 /* RGAnimationQueueOperationProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGAnimationQueueOperationProtocol.h; sourceTree = "<group>"; };
+		2A28C4311B7E8B4800081719 /* RGAnimationQueueOperationComposite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RGAnimationQueueOperationComposite.h; sourceTree = "<group>"; };
+		2A28C4321B7E8B4800081719 /* RGAnimationQueueOperationComposite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RGAnimationQueueOperationComposite.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +88,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A1F09381B7BDDA000A99F47 /* Crashlytics.framework in Frameworks */,
+				2A1F09371B7BDDA000A99F47 /* Fabric.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -108,6 +124,8 @@
 		2A1F08ED1B7BB57A00A99F47 /* RGCardScrollView */ = {
 			isa = PBXGroup;
 			children = (
+				2A1F09351B7BDDA000A99F47 /* Fabric.framework */,
+				2A1F09361B7BDDA000A99F47 /* Crashlytics.framework */,
 				2A1F092F1B7BB5A600A99F47 /* RGCardScrollView */,
 				2A1F08F21B7BB57A00A99F47 /* AppDelegate.h */,
 				2A1F08F31B7BB57A00A99F47 /* AppDelegate.m */,
@@ -168,8 +186,23 @@
 				2A1F09231B7BB59E00A99F47 /* RGCardViewCustomizer.m */,
 				2A1F09241B7BB59E00A99F47 /* RGDraggrableView.h */,
 				2A1F09251B7BB59E00A99F47 /* RGDraggrableView.m */,
+				2A28C4341B7E90C900081719 /* RGAnimationQueue */,
 			);
 			name = RGCardScrollView;
+			sourceTree = "<group>";
+		};
+		2A28C4341B7E90C900081719 /* RGAnimationQueue */ = {
+			isa = PBXGroup;
+			children = (
+				2A28C42A1B7E8ABA00081719 /* RGAnimationQueue.h */,
+				2A28C42B1B7E8ABA00081719 /* RGAnimationQueue.m */,
+				2A28C4301B7E8B0900081719 /* RGAnimationQueueOperationProtocol.h */,
+				2A28C42D1B7E8ACF00081719 /* RGAnimationQueueOperation.h */,
+				2A28C42E1B7E8ACF00081719 /* RGAnimationQueueOperation.m */,
+				2A28C4311B7E8B4800081719 /* RGAnimationQueueOperationComposite.h */,
+				2A28C4321B7E8B4800081719 /* RGAnimationQueueOperationComposite.m */,
+			);
+			name = RGAnimationQueue;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -182,6 +215,7 @@
 				2A1F08E71B7BB57A00A99F47 /* Sources */,
 				2A1F08E81B7BB57A00A99F47 /* Frameworks */,
 				2A1F08E91B7BB57A00A99F47 /* Resources */,
+				2A1F09341B7BDD5A00A99F47 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -267,19 +301,38 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		2A1F09341B7BDD5A00A99F47 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Fabric.framework/run 71614f2386faedafd9d9be6b179ba89749359e88 90baacc0bb79d4d8f5d8253bfbfa81df5135ebcbca19d9cf0d5d8bf8815bfb51";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		2A1F08E71B7BB57A00A99F47 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A28C42C1B7E8ABA00081719 /* RGAnimationQueue.m in Sources */,
 				2A1F08F71B7BB57A00A99F47 /* ViewController.m in Sources */,
 				2A1F09261B7BB59E00A99F47 /* RGAutoresizeScrollView.m in Sources */,
 				2A1F092C1B7BB59E00A99F47 /* RGCardSwapAnimation.m in Sources */,
+				2A28C4331B7E8B4800081719 /* RGAnimationQueueOperationComposite.m in Sources */,
 				2A1F09291B7BB59E00A99F47 /* RGCardItemScrollingShifter.m in Sources */,
 				2A1F092E1B7BB59E00A99F47 /* RGDraggrableView.m in Sources */,
 				2A1F08F41B7BB57A00A99F47 /* AppDelegate.m in Sources */,
 				2A1F08F11B7BB57A00A99F47 /* main.m in Sources */,
 				2A1F09281B7BB59E00A99F47 /* RGCardItemRemover.m in Sources */,
+				2A28C42F1B7E8ACF00081719 /* RGAnimationQueueOperation.m in Sources */,
 				2A1F092A1B7BB59E00A99F47 /* RGCardItemSorter.m in Sources */,
 				2A1F092B1B7BB59E00A99F47 /* RGCardScrollView.m in Sources */,
 				2A1F092D1B7BB59E00A99F47 /* RGCardViewCustomizer.m in Sources */,
@@ -409,6 +462,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/RGCardScrollView",
+				);
 				INFOPLIST_FILE = RGCardScrollView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -419,6 +477,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/RGCardScrollView",
+				);
 				INFOPLIST_FILE = RGCardScrollView/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -478,6 +541,7 @@
 				2A1F09101B7BB57B00A99F47 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2A1F09111B7BB57B00A99F47 /* Build configuration list for PBXNativeTarget "RGCardScrollViewTests" */ = {
 			isa = XCConfigurationList;
@@ -486,6 +550,7 @@
 				2A1F09131B7BB57B00A99F47 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

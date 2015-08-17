@@ -39,7 +39,7 @@
     } else {
         [self swapAnimation];
     }
-    [self.sorter sort:NO];
+    [self.sorter sortViewsAndSendThemToTheRightPlaces];
 }
 
 #pragma mark - animation types

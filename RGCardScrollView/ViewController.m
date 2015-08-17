@@ -33,7 +33,7 @@
     
 }
 -(void)remove:(RGCardScrollView *)view {
-    [view swapViewAtIndex:0 withViewAtIndex:2 andAnimationType:RGCardAnimationTypeSwap];
+    [view deleteSubviewAtOrder:2 animated:YES];
 }
 
 #pragma mark - card data source

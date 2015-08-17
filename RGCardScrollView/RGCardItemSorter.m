@@ -9,6 +9,7 @@
 #import "RGCardItemSorter.h"
 #import "RGCardItem.h"
 #import "RGDraggrableView.h"
+#import "RGAnimationQueueOperationComposite.h"
 
 @interface RGCardItemSorter ()
 
@@ -27,24 +28,28 @@
 }
 
 #pragma mark - sort
--(void)sort:(BOOL)animated {
+-(void)sortViewsAndSendThemToTheRightPlaces {
     [self.cards enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         RGCardItem *item = (RGCardItem *)obj;
         RGDraggrableView *draggable = (RGDraggrableView *)item.view;
         [item.view.superview bringSubviewToFront:draggable];
-        [[[[self openedItem] view] superview] bringSubviewToFront:[self openedItem].view];
-        if (draggable.dragging) {
-
-        } else {
-            if (animated) {
-                [item.view.layer addAnimation:[self animationForItem:item] forKey:@"ComeBackToPlace"];
-                item.view.layer.opacity = 1.0f;
-            }
+        if (draggable.dragging == NO) {
             item.view.frame = [self rectForCardItem:item];
         }
     }];
-    
-    
+}
+-(RGAnimationQueueOperationComposite *)compositeSortingAnimation {
+    RGAnimationQueueOperationComposite *animationItem = [[RGAnimationQueueOperationComposite alloc] initWithKey:@"comeBackToPlace"];
+    for (int i = 0; i < self.cards.count; i++) {
+        RGCardItem *item = (RGCardItem *)self.cards[i];
+        RGDraggrableView *draggable = (RGDraggrableView *)item.view;
+        [item.view.superview bringSubviewToFront:draggable];
+        if (draggable.dragging == NO) [animationItem addAnimation:[self animationForItem:item] onView:item.view andModalLayerChanges:^{
+            item.view.frame = [self rectForCardItem:item];
+            item.view.layer.opacity = 1.0f;
+        }];
+    }
+    return animationItem;
 }
 
 #pragma mark - helper methods

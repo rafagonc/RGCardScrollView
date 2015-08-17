@@ -8,6 +8,7 @@
 
 @import UIKit;
 @class RGCardItem;
+@class RGAnimationQueueOperationComposite;
 
 @interface RGCardItemSorter : NSObject
 
@@ -18,7 +19,10 @@
 @property (nonatomic,assign) CGFloat closedPadding;;
 
 #pragma mark - sorting
--(void)sort:(BOOL)animated;
+-(void)sortViewsAndSendThemToTheRightPlaces;
+-(RGAnimationQueueOperationComposite *)compositeSortingAnimation;
+
+#pragma mark - helper methods
 -(CGRect)rectForCardItem:(RGCardItem *)item;
 
 @end
